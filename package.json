@@ -1,0 +1,26 @@
+{
+  "name": "in-the-cave",
+  "version": "1.0.0",
+  "description": "My js13kgame entry",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/dracougnou/in-the-cave.git"
+  },
+  "author": "Dodormeur",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/dracougnou/in-the-cave#readme",
+  "devDependencies": {
+    "browser-sync": "^2.18.13",
+    "gulp": "^3.9.1",
+    "gulp-filesize": "0.0.6",
+    "gulp-size": "^2.1.0",
+    "gulp-zip": "^4.0.0"
+  },
+  "dependencies": {
+    "google-closure-compiler": "^20170806.0.0"
+  }
+}

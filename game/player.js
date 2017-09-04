@@ -17,13 +17,11 @@ function framePlayer()
     if(keys[RIGHT])playerX+=speed;
     playerFrame++;
     if(mode == 0)playerHalo += Math.sin(playerFrame/60)/15;
-    if(mode == 1 && playerHalo>0)playerHalo-=0.2;
+    if(mode >= 1 && playerHalo>0)playerHalo-=0.2;
 
 playerTouched = false;
     if(collision(playerX,playerY,5))
     {
-        console.log("touched")
-        drawText(50,400,"touched",40);
         playerTouched = true;
     }
 }

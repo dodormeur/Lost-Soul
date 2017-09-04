@@ -7,6 +7,9 @@ const size = require('gulp-size');
 
 gulp.task('compile', function() {
 
+    gulp.src('./game/index.html')
+  .pipe(gulp.dest('dist'));
+
     return gulp.src('./game/*.js', {base: './'})
       .pipe(closureCompiler({
           compilation_level: 'ADVANCED',

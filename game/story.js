@@ -16,3 +16,9 @@ function drawStory()
 //    drawText(400,400," Everyone ask the same\nquestion when they arrive",storyFrame-300);
 
 }
+
+
+function initStory()
+{
+    
+}

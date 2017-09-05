@@ -43,7 +43,12 @@ function changeMode(which)
     switch(which)
     {
         case 0 : initStory();break;
-        case 2 : break;
+        case 2 :
+            var custom = prompt("please enter the level code","Should look like mH4HnAAAK2eXaxTQAAArZw");
+            if(custom == null || custom == ""){keys[SPACE] = false;return;}
+            else startLevel(custom);
+            lastUpdate = Date.now();
+        break;
         case 3 : initEditor();break;
         case 4 : break;
     }

@@ -2,7 +2,8 @@
 
 var editorSelected = 0;
 var editorEnnemies = [];
-
+var editorX,editorY;
+var editorCode;
 function generateCode()
 {
     document.getElementById("code").innerHTML="temp";
@@ -39,10 +40,14 @@ function initEditor()
 
 
     var targetSystem = [
-        "randomly",
         "at the player",
         "rotating",
-        "cone at the player"
+        "top",
+        "left",
+        "right",
+        "bottom",
+        "4 direction where player is",
+        "8 direction where player is"
     ];
 
     var firerate = [
@@ -79,6 +84,7 @@ function initEditor()
         "fast",
         "very fast"
     ];
+    //16 bits + 20 (position) + 14 (start frame) + 14 (duration)  = 64 bits = 8 octet/ennemy
 
 
     var s = "";
@@ -114,14 +120,69 @@ function initEditor()
 
 
 
+
+function u8To64(data){
+    var b64encoded = btoa(String.fromCharCode.apply(null, data));
+    return b64encoded;
+}
+
+
+
+function editorGenerateCode()
+{
+    var temp = [];
+    for(var i = 0;i<editorEnnemies.length;i++)
+    {
+        temp = temp.concat(editorEnnemies[i].generateArray());
+        console.log("test"+" "+editorEnnemies[i].generateArray());
+    }
+    editorCode = u8To64(new Uint8Array(temp));
+    console.log(temp);
+    document.getElementById("code").value=editorCode;
+}
+
 function editorRefreshEnnemy()
 {
-    console.log("ok");
+
+    if(editorSelected >= editorEnnemies.length)return;
+    /*
+
+        this.x = (x[0]<<2) + ((x[1]&0xC0)>>6);
+        this.y = ((x[1]&0x3F)<<4) + ((x[2]&0xF0)>>4);
+        this.target = (x[2]&0xC)>>2;
+        this.fireRate = x[2]&0x3;
+        this.bulletModifier = ((x[3]&0xE)>>5);
+        this.bulletModifier2 = (x[3]&0x1C)>>2;
+        this.bulletType = (x[3]&0x3);
+        this.movement = (x[4]&0xC0)>>6;
+        this.speed = (x[4]&0x30)>>4;
+        this.start = (x[5]&0xF)<<12 + x[6]<<2 + ((x[7]&0xC0)>>6);
+        this.duration = ((x[7]&0x3F)<<8) + x[8];
+
+*/
+    var g = function(a){
+        return document.getElementById(a);
+    }
+    var e = editorEnnemies[editorSelected];
+    e.x = editorX;
+    e.y = editorY;
+    e.target = g("target").value;
+    e.bulletModifier = g("firstMult").value;
+    e.bulletModifier2 = g("secondMult").value;
+    e.fireRate = g("fireRate").value;
+    e.bulletType = g("bulletType").value;
+    e.movement = g("movement").value;
+    e.speed = g("speed").value;
+    e.start = g("start").value;
+    e.duration = g("duration").value;
+
+    editorGenerateCode();
+
 }
 function editorAddEnnemy()
 {
     console.log("pushed");
-    editorEnnemies.push(1);
+    editorEnnemies.push(new Ennemy());
     editorRefreshList();
 }
 
@@ -129,12 +190,38 @@ function editorDeleteEnnemy(id)
 {
     console.log("delete");
     editorEnnemies.splice(id,1);
+    editorSelected = 0;
+    editorRefreshEnnemy();
     editorRefreshList();
 }
 
-function editorDisplay(id)
-{
 
+function editorStartLevel()
+{
+    startLevel(editorCode);
+}
+
+function editorDisplay(id) //Display the ennemy with the code
+{
+    var g = function(a){
+        return document.getElementById(a);
+    }
+
+    editorSelected = id;
+    var e = editorEnnemies[editorSelected];
+
+    editorX = e.x;
+    editorY = e.y;
+    g("position").innerHTML=" x:"+editorX+" y:"+editorY;
+    g("target").value = e.target;
+    g("firstMult").value = e.bulletModifier;
+    g("secondMult").value = e.bulletModifier2;
+    g("fireRate").value = e.fireRate;
+    g("bulletType").value = e.bulletType;
+    g("movement").value = e.movement;
+    g("speed").value = e.speed;
+    g("start").value = e.start;
+    g("duration").value = e.duration;
 }
 
 
@@ -151,7 +238,9 @@ function editorClickCanvas(e)
 {
     var x = Math.floor((e.clientX-canvas.offsetLeft)/canvas.offsetHeight*1000);
     var y = Math.floor((e.clientY-canvas.offsetTop)/canvas.offsetHeight*1000);
-    document.getElementById("position").innerHTML=" x:"+x+" y:"+y;
+    editorX = x;
+    editorY = y;
+    document.getElementById("position").innerHTML=" x:"+editorX+" y:"+editorY;
     editorRefreshEnnemy();
     /*
     if (e.pageX || e.pageY) {

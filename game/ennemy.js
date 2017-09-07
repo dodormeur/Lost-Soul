@@ -34,8 +34,7 @@ class Ennemy{
     //x or the string representing the Ennemy
     constructor(x,y,target,firerate,bulletModifier,bulletModifier2,bulletType,movement,speed,start,duration)
     {
-        this.frame = 0;
-        if (arguments.length == 4) {
+        if (arguments.length == 4) {//Legacy, to remove
             this.x = x;
             this.y = y;
             this.startFrame = start;
@@ -46,6 +45,7 @@ class Ennemy{
             this.bulletModifier2 = bulletModifier2;
             this.bulletType = bulletType;
             this.movement = movement;
+            this.movementType = 0;
             this.speed = speed;
         }
         else if (arguments.length == 1){
@@ -56,10 +56,11 @@ class Ennemy{
             this.bulletModifier = ((x[3]&0xE0)>>5);
             this.bulletModifier2 = (x[3]&0x1C)>>2;
             this.bulletType = (x[3]&0x3);
-            this.movement = (x[4]&0xC0)>>6;
-            this.speed = (x[4]&0x30)>>4;
-            this.start = (x[4]&0xF)<<12 + x[5]<<2 + ((x[6]&0xC0)>>6);
-            this.duration = ((x[6]&0x3F)<<8) + x[7];
+            this.movement = (x[4]&0xF0)>>4;
+            this.movementType = (x[4]&0xC)>>2;
+            this.speed = (x[4]&0x03);
+            this.start = (x[5]<<8) + (x[6]&0xF0);
+            this.duration = (((x[6]&0x0F)<<8) + x[7])<<4;
 
             console.log("init"+x[2]+" "+this.target);
 
@@ -75,10 +76,18 @@ class Ennemy{
             this.bulletModifier2 = 0;
             this.bulletType = 0;
             this.movement = 0;
+            this.movementType = 0;
             this.speed = 0;
             this.start = 0;
             this.duration = 0;
         }
+
+        this.startX  =this.x;
+        this.startY  =this.y;
+        this.oldTargetAngle = 0;
+        this.movingStep = 0;
+        this.frame = 0;
+        this.frameTotal = 0;
     }
 
     generateArray()
@@ -89,10 +98,10 @@ class Ennemy{
         a.push(Math.floor(this.y>>2));
         a.push(((+this.target)<<2)+(+this.fireRate));
         a.push((this.bulletModifier<<5)+(this.bulletModifier2<<2)+(+this.bulletType));
-        a.push((this.movement<<6)+(this.speed<<4)+Math.floor(this.start>>10));
-        a.push((this.start&0x3FC)>>2);
-        a.push(((this.start&0x3)<<6)+Math.floor(this.duration>>8));
-        a.push(this.duration&0xFF);
+        a.push((+this.movement<<4)+(this.movementType<<2)+(+this.speed));
+        a.push((this.start&0xFF00)>>8);
+        a.push((this.start&0xF0)+Math.floor(this.duration>>12));
+        a.push((this.duration&0xFF0)>>4);
         return a;
     }
 }
@@ -107,6 +116,7 @@ class Bullet{
 var ennemies = [];
 var bullets = [];
 var OUT = -999;
+var levelPlaying = "";
 /*
 var bulletsX = [];
 var bulletsY = [];
@@ -128,7 +138,9 @@ function toU8(data){
 
 function startLevel(custom)
 {
-
+    playerX = 500;
+    playerY = 500;
+    levelPlaying = custom;
     ennemies = [];
     bullets = [];
     var data = toU8(custom);
@@ -164,23 +176,76 @@ function frameEnnemy()
     for(var i = 0;i<ennemies.length;i++)
     {
         var e = ennemies[i];
-        e.frame++;
-        if(e.frame>e.start && e.frame<(e.start+e.duration))
+        e.frameTotal++;
+        if(e.frameTotal>e.start && e.frameTotal<(e.start+e.duration))
         {
-            var fire = ((e.frame%(72/(e.fireRate+1))) == 0);
+            e.frame++;
+            var targetMovementAngle = undefined;
+            switch(e.movement)
+            {
+                case 0: break;
+                case 1 : targetMovementAngle = Math.atan2(playerY-e.y,playerX-e.x);break;
+                case 2:targetMovementAngle = Math.PI*3/2;break;
+                case 3 : targetMovementAngle = Math.PI;break;
+                case 4 : targetMovementAngle = 0;break;
+                case 5 : targetMovementAngle = Math.PI/2;break;
+                case 6 :
+                    var x = e.startY;
+                    var y = e.startY;
+                    if(e.movingStep== 0 || e.movingStep == 1)x = 1000-x;
+                    if(e.movingStep== 1 || e.movingStep == 2)y = 1000-y;
+
+                    if(Math.abs(e.x-x)<1 && Math.abs(e.y-y)<1)e.movingStep++;
+                    if(e.movingStep>3)e.movingStep = 0;
+                    targetMovementAngle = Math.atan2(y-e.y,x-e.x);
+                break;
+                case 7 : targetMovementAngle = Math.atan2(1000-playerY-e.y,1000-playerX-e.x);break;
+            }
+
+            switch(e.movementType)
+            {
+                case 0:break;
+                case 1: targetMovementAngle+= Math.sin(e.frame/40);break;
+                case 2:
+                    var turn = 0.03;
+                    e.oldTargetAngle = (e.oldTargetAngle+Math.PI*2)%(Math.PI*2);
+                    targetMovementAngle = (targetMovementAngle+Math.PI*2)%(Math.PI*2);
+                    var dist = e.oldTargetAngle - targetMovementAngle;
+                    if(dist >Math.PI)
+                    {
+                        if(e.oldTargetAngle<targetMovementAngle)dist  = -1;
+                        else dist = 1;
+                    }
+                    else {
+                        if(e.oldTargetAngle<targetMovementAngle)dist  = 1;
+                        else dist = -1;
+
+                    }
+                    if(Math.abs(e.oldTargetAngle - targetMovementAngle)<turn)dist*=Math.abs(e.oldTargetAngle - targetMovementAngle)
+                    else dist *=turn;
+
+                    targetMovementAngle = e.oldTargetAngle + dist;
+                    e.oldTargetAngle = targetMovementAngle;
+
+                    console.log(dist);
+                break;
+                case 3: targetMovementAngle+= Math.sin(e.frame/10)/10;break;
+            }
+
+
+            if(targetMovementAngle != undefined)
+            {
+                e.x+= Math.cos(targetMovementAngle)*(e.speed+1)/2;
+                e.y += Math.sin(targetMovementAngle)*(e.speed+1)/2;
+            }
+
+
+            //Firing section
+            var fire = ((e.frame%(72/(e.fireRate+1))) == 1);
             if(fire)
             {
                 var targetAngle = [];
 
-
-        "at the player",
-        "rotating",
-        "top",
-        "left",
-        "right",
-        "bottom",
-        "4 direction where player is",
-        "8 direction where player is"
                 switch(e.target)
                 {
                     case 0:
@@ -248,7 +313,7 @@ function frameEnnemy()
                 }
                 for(var i = 0;i<targetAngle.length;i++)
                 {
-                    newBullet(e.x,e.y,5,0,0,targetAngle[i],1.5);
+                    newBullet(e.x,e.y,5+(e.bulletType%2)*5,0,0,targetAngle[i],2.0-Math.floor(e.bulletType/2)*1);
                 }
             }
         }
@@ -276,8 +341,9 @@ function frameEnnemy()
 
 function drawEnnemy()
 {
-    shadow("blue",10,0,0)
+    shadow("blue",10,0,0);
     ctx.strokeStyle = "red";
+    ctx.lineWidth = 5;
     ctx.beginPath();
     for(var i = 0;i<bullets.length;i++)
     {
@@ -289,6 +355,19 @@ function drawEnnemy()
         }
     }
     ctx.stroke();
+    ctx.fillStyle ="red"
+    ctx.beginPath();
+    for(var i = 0;i<ennemies.length;i++)
+    {
+        var e = ennemies[i];
+        if(e.frameTotal>e.start-60 && e.frameTotal<(e.start+e.duration))
+        {
+            ctx.moveTo(e.x,e.y);
+            ctx.arc(e.x,e   .y,10,0,Math.PI*2);
+        }
+
+    }
+    ctx.fill();
 }
 
 

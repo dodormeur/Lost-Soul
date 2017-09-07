@@ -21,7 +21,7 @@ function drawMenu()
 
     var titleSize =5;
     var elementSize =2;
-    var itemName=["Story","Infinite","Custom","Editor"]
+    var itemName=["Story","Arcade","Custom","Editor"]
     ctx.save();
     ctx.scale(titleSize,titleSize);
     ctx.strokeStyle = "black"

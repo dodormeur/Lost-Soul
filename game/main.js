@@ -8,12 +8,28 @@ var frameDelta = 0.0;
 var lastUpdate;
 
 var stats;
-//0 = story, 1 = play in story, 2 = custom level, 3 = editor,4 = main menu
+//0 = story, 1 = play in story, 2 = custom level, 3 = editor,4 = main menu, 5 = arcade
 var mode = 4;
 var motionBlur = 4;
 
+
+function initDOMEvent()
+{
+    var g = function(id)
+    {
+        return document.getElementById(id);
+    }
+
+    g("canvas").addEventListener("click",editorClickCanvas);
+    g("formEditor").addEventListener("change",editorRefreshEnnemy);
+    g("buttonStart").addEventListener("click",editorStartLevel);
+    g("buttonAdd").addEventListener("click",editorAddEnnemy);
+    g("buttonLoad").addEventListener("click",editorLoadData);
+}
 function init()
 {
+
+    initDOMEvent();
     initText();
     canvas = document.getElementById("canvas");
     canvas.width = 1000;
@@ -23,6 +39,8 @@ function init()
 
     lastUpdate  = Date.now();
     render();
+
+    changeMode(4);
 
     //stats
 /*
@@ -43,14 +61,15 @@ function changeMode(which)
     switch(which)
     {
         case 0 : initStory();break;
+        case 1 : mode = 5;break;
         case 2 :
-            var custom = prompt("please enter the level code","Should look like mH4HnAAAK2eXaxTQAAArZw");
+            var custom = prompt("please enter the level code","Should look like b5cH5GEAbIE=");
             if(custom == null || custom == ""){keys[SPACE] = false;return;}
             else startLevel(custom);
             lastUpdate = Date.now();
         break;
         case 3 : initEditor();break;
-        case 4 : break;
+        case 4 : startLevel("u7sG5AAAD/8=");playerX = OUT;break;
     }
     mode = which;
 }
@@ -68,6 +87,14 @@ function frame()
         break;
         case 4:
             frameMenu();
+            frameEnnemy();
+        break;
+
+        case 5:
+            frameEnnemy();
+            framePlayer();
+            frameArcade();
+
         break;
     }
 }
@@ -102,6 +129,7 @@ function render()
             drawPlayer();
         break;
         case 4:
+            drawEnnemy();
             drawMenu();
         break;
     }

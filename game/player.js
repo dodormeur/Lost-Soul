@@ -16,13 +16,17 @@ function framePlayer()
     if(keys[LEFT])playerX-=speed;
     if(keys[RIGHT])playerX+=speed;
     playerFrame++;
+    if(playerX>1000)playerX = 1000;
+    if(playerX<0)playerX =0;
+    if(playerY>1000)playerY = 1000;
+    if(playerY<0)playerY =0;
     if(mode == 0)playerHalo += Math.sin(playerFrame/60)/15;
     if(mode >= 1 && playerHalo>0)playerHalo-=0.2;
 
 playerTouched = false;
     if(collision(playerX,playerY,5))
     {
-        playerTouched = true;
+        startLevel(levelPlaying);
     }
 }
 function drawPlayer()

@@ -102,33 +102,41 @@
         </style>
 	</head>
 <body id="container">
-	<canvas id="canvas" onclick="editorClickCanvas(event)"></canvas>
+	<canvas id="canvas"></canvas>
 	<div id="editor">
 		<ul id="list">
 			Add enemies by clicking the button.<br/>
 			Ennemies are bullet generator, they stay a certain amount of time and respect specific rule for firing and moving
 		</ul>
-		<button onclick="editorAddEnnemy();">Add Ennemy</button>
-		<form onchange="editorRefreshEnnemy();">
-			<div>position : <span id="position">click on the playground to set</span></div>
+		<button id="buttonAdd">Add Ennemy</button>
+		<form id="formEditor">
+			<div>position : (click on canvas to change)</div>
+			<div> x : <input type="text" id="posX"/></div>
+			<div> y : <input type="text" id="posY"/></div>
 			<div>Targeting : <select id="target"></select></div>
 			<div>First target multiplier  : <select id="firstMult"></select></div>
 			<div>Second target multiplier  : <select id="secondMult"></select></div>
 			<div>Fire rate  : <select id="fireRate"></select></div>
 			<div>Bullet type  : <select id="bulletType"></select></div>
-			<div>Movement : <select id="movement"></select></div>
+			<div>Target movement : <select id="movement"></select></div>
+			<div>Movement type: <select id="movementType"></select></div>
 			<div>speed : <select id="speed"></select></div>
 
-			<div>Begining frame (60frame = 1 sec) : <input id="start" type="text"/></div>
-			<div>duration (in frame) : <input id="duration" type="text"/></div>
+			<div>Begining frame (60frame = 1 sec) : <input id="start" type="number" max="65528"/></div>
+			<div>duration (in frame) : <input id="duration" type="number" max="65528"/></div>
 		</form>
-		<div style="padding : 10px;">
-			Level code :<input type="text" id="code"></input>
+		<div style="padding : 20px 10px;">
+			load level : <input type="text" id="load"/>
+			<button id="buttonLoad">Load and edit a level</button>
 		</div>
-		<button onclick ="editorStartLevel();">test the level</button>
+		<div style="padding : 10px;">
+			Level code output :<input type="text" id="code"></input>
+		</div>
+		<button id="buttonStart">test the level</button>
 	</div>
 	<script type="text/javascript" src="helper.js"></script>
 	<script type="text/javascript" src="story.js"></script>
+	<script type="text/javascript" src="arcade.js"></script>
 	<script type="text/javascript" src="ennemy.js"></script>
 	<script type="text/javascript" src="editor.js"></script>
 	<script type="text/javascript" src="main.js"></script>

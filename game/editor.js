@@ -72,12 +72,22 @@ function initEditor()
         "slow and small",
         "slow and big"
     ];
-    var movement = [
+    var movementTarget = [
         "fixed",
-        "go to random point",
         "go to player",
-        "erratic move"
+        "top",
+        "left",
+        "right",
+        "bottom",
+        "rectangle centered in 500,500",
+        "opposite to the player"
     ];
+
+    var movementType = [
+        "straight",
+        "sine wave",
+        "slow turn"
+    ]
     var speed = [
         "slow",
         "normal",
@@ -108,14 +118,22 @@ function initEditor()
         s += "<option value="+i+">"+bulletType[i]+"</option>";
     document.getElementById('bulletType').innerHTML = s;
     s = "";
-    for(var i = 0;i<movement.length;i++)
-        s += "<option value="+i+">"+movement[i]+"</option>";
+    for(var i = 0;i<movementTarget.length;i++)
+        s += "<option value="+i+">"+movementTarget[i]+"</option>";
     document.getElementById('movement').innerHTML = s;
+
+s = "";
+for(var i = 0;i<movementType.length;i++)
+    s += "<option value="+i+">"+movementType[i]+"</option>";
+document.getElementById('movementType').innerHTML = s;
+
 
     s = "";
     for(var i = 0;i<speed.length;i++)
         s += "<option value="+i+">"+speed[i]+"</option>";
     document.getElementById('speed').innerHTML = s;
+
+    editorAddEnnemy();
 }
 
 
@@ -164,17 +182,34 @@ function editorRefreshEnnemy()
         return document.getElementById(a);
     }
     var e = editorEnnemies[editorSelected];
-    e.x = editorX;
-    e.y = editorY;
+    e.x = g("posX").value;
+    if(e.x<0)e.x = 0;
+    if(e.x>1024)e.x = 1024;
+    g("posX").value= e.x;
+
+    e.y = g("posY").value;
+    if(e.y<0)e.y = 0;
+    if(e.y>1024)e.y = 1024;
+    g("posY").value= e.y;
+
     e.target = g("target").value;
     e.bulletModifier = g("firstMult").value;
     e.bulletModifier2 = g("secondMult").value;
     e.fireRate = g("fireRate").value;
     e.bulletType = g("bulletType").value;
     e.movement = g("movement").value;
+    e.movementType = g("movementType").value;
     e.speed = g("speed").value;
     e.start = g("start").value;
+    if(e.start<0)e.start = 0;
+    if(e.start>Math.pow(2,16)-8)e.start = Math.pow(2,16)-8;
+    g("start").value  = e.start;
+
+
     e.duration = g("duration").value;
+    if(e.duration<0)e.duration = 0;
+    if(e.duration>Math.pow(2,16)-8)e.duration = Math.pow(2,16)-8;
+    g("duration").value  = e.duration;
 
     editorGenerateCode();
 
@@ -210,20 +245,39 @@ function editorDisplay(id) //Display the ennemy with the code
     editorSelected = id;
     var e = editorEnnemies[editorSelected];
 
-    editorX = e.x;
-    editorY = e.y;
-    g("position").innerHTML=" x:"+editorX+" y:"+editorY;
+    g("posX").value = e.x;
+    g("posY").value = e.y
     g("target").value = e.target;
     g("firstMult").value = e.bulletModifier;
     g("secondMult").value = e.bulletModifier2;
     g("fireRate").value = e.fireRate;
     g("bulletType").value = e.bulletType;
     g("movement").value = e.movement;
+    g("movementType").value = e.movementType;
     g("speed").value = e.speed;
     g("start").value = e.start;
     g("duration").value = e.duration;
 }
 
+
+function editorLoadData()
+{
+    var custom = document.getElementById("load").value;
+    try {
+        var data = toU8(custom);
+        editorEnnemies =  [];
+        for(var i = 0;i<data.length/8;i++)
+        {
+            editorEnnemies.push(new Ennemy(data.subarray(i*8,i*8+8)));
+        }
+        editorRefreshList();
+        editorDisplay(0);
+        editorGenerateCode();
+    }catch(e)
+    {
+        alert("invalid Data. Please check it.")
+    }
+}
 
 function editorRefreshList()
 {
@@ -236,12 +290,9 @@ document.getElementById("list").innerHTML = string;
 
 function editorClickCanvas(e)
 {
-    var x = Math.floor((e.clientX-canvas.offsetLeft)/canvas.offsetHeight*1000);
-    var y = Math.floor((e.clientY-canvas.offsetTop)/canvas.offsetHeight*1000);
-    editorX = x;
-    editorY = y;
-    document.getElementById("position").innerHTML=" x:"+editorX+" y:"+editorY;
-    editorRefreshEnnemy();
+    editorEnnemies[editorSelected].x = Math.floor((e.clientX-canvas.offsetLeft)/canvas.offsetHeight*1000);
+    editorEnnemies[editorSelected].y = Math.floor((e.clientY-canvas.offsetTop)/canvas.offsetHeight*1000);
+    editorDisplay(editorSelected);
     /*
     if (e.pageX || e.pageY) {
       x = e.pageX;

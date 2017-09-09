@@ -48,11 +48,11 @@ function init()
     script.onload=function()
     {
         stats=new Stats();
-        //document.body.appendChild(stats.dom);
+        document.body.appendChild(stats.dom);
     };
     script.src='//rawgit.com/mrdoob/stats.js/master/build/stats.min.js';
     document.head.appendChild(script);
-    */
+*/
 }
 
 
@@ -61,7 +61,7 @@ function changeMode(which)
     switch(which)
     {
         case 0 : initStory();break;
-        case 1 : mode = 5;break;
+        case 1 : initArcade();mode = 5;which = 5;break;
         case 2 :
             var custom = prompt("please enter the level code","Should look like b5cH5GEAbIE=");
             if(custom == null || custom == ""){keys[SPACE] = false;return;}
@@ -124,7 +124,7 @@ function render()
     {
         case 0:case 1:
             drawStory();
-        case 2:case 3:
+        case 2:case 3:case 5:
             drawEnnemy();
             drawPlayer();
         break;

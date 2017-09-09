@@ -11,6 +11,8 @@ function generateCode()
 
 function initEditor()
 {
+    ennemies = [];
+    bullets = [];
     document.getElementById("editor").style.display ="flex";
     document.getElementById("canvas").classList.add("canvasEdit");
 

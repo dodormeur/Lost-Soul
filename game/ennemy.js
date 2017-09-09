@@ -129,10 +129,15 @@ var bulletsSpeed = [];
 
 
 function toU8(data){
-    var u8_2 = new Uint8Array(atob(data).split("").map(function(c) {
-    return c.charCodeAt(0); }));
+    try {
 
-    return u8_2;
+        var u8_2 = new Uint8Array(atob(data).split("").map(function(c) {
+        return c.charCodeAt(0); }));
+
+        return u8_2;
+    } catch(e){
+        console.log("error decoding "+data);
+    }
 }
 
 
@@ -311,9 +316,11 @@ function frameEnnemy()
                     });
                     targetAngle = targetAngle2;
                 }
+                targetAngle.sort();
+
                 for(var i = 0;i<targetAngle.length;i++)
                 {
-                    newBullet(e.x,e.y,5+(e.bulletType%2)*5,0,0,targetAngle[i],2.0-Math.floor(e.bulletType/2)*1);
+                    if(targetAngle[i]!=targetAngle[(i+1)%targetAngle.length])newBullet(e.x,e.y,5+(e.bulletType%2)*5,0,0,targetAngle[i],2.0-Math.floor(e.bulletType/2)*1);
                 }
             }
         }
@@ -336,6 +343,21 @@ function frameEnnemy()
             }
         }
     }
+}
+
+
+function levelFinished()
+{
+
+
+    for(var i = 0;i<ennemies.length;i++){
+
+        var e = ennemies[i];
+        if(e.frameTotal<(e.start+e.duration))return false;
+    }
+
+    if(bullets.length>0)return false;
+    return true;
 }
 
 

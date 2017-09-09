@@ -88,6 +88,15 @@
 
 			}
 
+			#levelDisplay
+			{
+				position : fixed;
+				top : 10px;
+				left : 10px;
+				color : white;
+				font:monospace;
+			}
+
 			@media screen and (orientation:portrait) {
 			    #editor
 				{
@@ -103,6 +112,7 @@
 	</head>
 <body id="container">
 	<canvas id="canvas"></canvas>
+	<div id="levelDisplay"></div>
 	<div id="editor">
 		<ul id="list">
 			Add enemies by clicking the button.<br/>

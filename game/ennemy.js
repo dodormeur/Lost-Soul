@@ -62,8 +62,6 @@ class Ennemy{
             this.start = (x[5]<<8) + (x[6]&0xF0);
             this.duration = (((x[6]&0x0F)<<8) + x[7])<<4;
 
-            console.log("init"+x[2]+" "+this.target);
-
             //load from string
         }
         else
@@ -93,7 +91,6 @@ class Ennemy{
     generateArray()
     {
         var a = [];
-        console.log(this.target+" test");
         a.push(Math.floor(this.x>>2));
         a.push(Math.floor(this.y>>2));
         a.push(((+this.target)<<2)+(+this.fireRate));
@@ -141,10 +138,13 @@ function toU8(data){
 }
 
 
-function startLevel(custom)
+function startLevel(custom,resetPlace)
 {
-    playerX = 500;
-    playerY = 500;
+    if(resetPlace != false)
+    {
+        playerX = 500;
+        playerY = 500;
+    }
     levelPlaying = custom;
     ennemies = [];
     bullets = [];
@@ -231,8 +231,6 @@ function frameEnnemy()
 
                     targetMovementAngle = e.oldTargetAngle + dist;
                     e.oldTargetAngle = targetMovementAngle;
-
-                    console.log(dist);
                 break;
                 case 3: targetMovementAngle+= Math.sin(e.frame/10)/10;break;
             }
@@ -320,7 +318,7 @@ function frameEnnemy()
 
                 for(var i = 0;i<targetAngle.length;i++)
                 {
-                    if(targetAngle[i]!=targetAngle[(i+1)%targetAngle.length])newBullet(e.x,e.y,5+(e.bulletType%2)*5,0,0,targetAngle[i],2.0-Math.floor(e.bulletType/2)*1);
+                    if(targetAngle[i]!=targetAngle[(i+1)%targetAngle.length] || targetAngle.length == 1)newBullet(e.x,e.y,5+(e.bulletType%2)*5,0,0,targetAngle[i],2.0-Math.floor(e.bulletType/2)*1);
                 }
             }
         }

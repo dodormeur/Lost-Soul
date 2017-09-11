@@ -20,8 +20,17 @@ function framePlayer()
     if(playerX<0)playerX =0;
     if(playerY>1000)playerY = 1000;
     if(playerY<0)playerY =0;
-    if(mode == 0)playerHalo += Math.sin(playerFrame/60)/15;
-    if(mode >= 1 && playerHalo>0)playerHalo-=0.2;
+
+    if(mode == 0)
+    {
+        if(playerTransformation && playerHalo<10)playerHalo+=0.2;
+        else playerHalo += Math.sin(playerFrame/60)/15;
+    }
+    if(mode >= 1 && playerHalo>0)
+    {
+        playerHalo-=0.2;
+        playerTransformation = true;
+    }
 
 playerTouched = false;
     if(collision(playerX,playerY,5))

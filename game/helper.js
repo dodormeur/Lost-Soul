@@ -22,7 +22,7 @@ function shadow(color,blur,offX,offY)
 
 function drawCircleShadow(x,y,size,width,color,blurPower,quality)
 {
-
+    if(size<0)return;
     shadow(color,10,0,0);
     ctx.lineWidth = width;
     ctx.strokeStyle="white";
@@ -34,7 +34,7 @@ function drawCircleShadow(x,y,size,width,color,blurPower,quality)
     {
         ctx.globalAlpha = 1.0/(i+1);
         ctx.beginPath();
-        ctx.arc(playerX,playerY,size+i*blurPower/quality,0,2*Math.PI);
+        if(size+i*blurPower/quality>0)ctx.arc(playerX,playerY,size+i*blurPower/quality,0,2*Math.PI);
         ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -67,10 +67,15 @@ var pathText = ['M 0 6 L 2 0 L 4 6 L 3 3 L 1 3',//A
 "M 0 0 L 4 6 L 2 3 L 0 6 L 4 0 ",//X
 "M 0 0 L 2 3 L 0 6 L 4 0",//Y
 "M 0 0 L 4 0 L 0 6 L 4 6 ",//Z
-"M 1 0 C 3 0 5 2 3 3 C 1 3.5 2.5 4 2.5 5 "//?
+"M 1 0 C 3 0 5 2 3 3 C 1 3.5 2.5 4 2.5 5 ",//?
+"M 2 6 L 2.01 6",//'
+"M 2 0 L 1.5 2",//.
+"M 2 0 L 2 4",//!
+"M 2 2 L 2 2.3",//*
+"M 2 6 L 1.5 6.5",//,
 ];
 
-var lookupText = "abcdefghijklmnopqrstuvwxyz?"
+var lookupText = "abcdefghijklmnopqrstuvwxyz?.'"
 
 function initText()
 {
@@ -99,24 +104,34 @@ function drawText(x,y,text,frame,frameOut)
     ctx.translate(x,y);
     ctx.scale(scale,scale);
     shadow("white",5,0,0)
+    var lastBreak = 0;
     for(var i = 0;i<text.length;i++)
     {
+
         if(frame > i*timeBetween)ctx.globalAlpha = Math.min((frame-i*timeBetween)/timeAlone,1);
         else ctx.globalAlpha = 0;
         if(frame > frameOut+i*timeBetween)ctx.globalAlpha = Math.max(0,Math.min(1-((frame-(frameOut+i*timeBetween))/timeAlone),1));
         var c = text.charCodeAt(i);
         var p = 0;
         if(c == "?".charCodeAt(0))p = 26;
+        else if(c == ".".charCodeAt(0))p = 27;
+        else if(c == "'".charCodeAt(0))p = 28;
+        else if(c == "!".charCodeAt(0))p = 29;
+        else if(c == "*".charCodeAt(0))p = 30;
+        else if(c == ",".charCodeAt(0))p = 31;
         else if(c == " ".charCodeAt(0))p = -1;
         else if(c == "\n".charCodeAt(0))
         {
             p = -1;
-            ctx.translate(-spacing*(i+1),12);
+            ctx.translate(-spacing*(lastBreak+1),12);
+            lastBreak = 0;
         }
         else p = c-"a".charCodeAt(0);
 
         if(p!= -1)ctx.stroke(pathText[p]);
         ctx.translate(spacing,0);
+
+        lastBreak++;
 
     }
 

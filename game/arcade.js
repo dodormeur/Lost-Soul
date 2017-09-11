@@ -50,6 +50,5 @@ function startArcadeLevel()
     var index = Math.floor(Math.random()*arcadeLevelPossible[arcadeStage].length);
     var string = arcadeLevelPossible[arcadeStage][index];
     arcadeLevelPossible[arcadeStage].splice(index,1);
-    document.getElementById("levelDisplay").innerHTML ="Level "+arcadeStage+"-"+arcadeLevelInStage+"<br/>seed :"+string;
     startLevel(string);
 }

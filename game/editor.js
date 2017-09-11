@@ -154,10 +154,8 @@ function editorGenerateCode()
     for(var i = 0;i<editorEnnemies.length;i++)
     {
         temp = temp.concat(editorEnnemies[i].generateArray());
-        console.log("test"+" "+editorEnnemies[i].generateArray());
     }
     editorCode = u8To64(new Uint8Array(temp));
-    console.log(temp);
     document.getElementById("code").value=editorCode;
 }
 
@@ -218,14 +216,12 @@ function editorRefreshEnnemy()
 }
 function editorAddEnnemy()
 {
-    console.log("pushed");
     editorEnnemies.push(new Ennemy());
     editorRefreshList();
 }
 
 function editorDeleteEnnemy(id)
 {
-    console.log("delete");
     editorEnnemies.splice(id,1);
     editorSelected = 0;
     editorRefreshEnnemy();
